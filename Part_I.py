@@ -2,6 +2,8 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 import matplotlib.pyplot as plt
+import math
+from collections import OrderedDict
 
 words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
 
@@ -31,7 +33,7 @@ def create_documents(i_alpha, i_beta):
 				actual_doc = actual_doc + (chr(79 + int(topic_2))) + " "  # O to T
 		documents.append(actual_doc)
 	print(documents)
-	return documents
+	return documents, topic_draw
 
 
 def latent_dirichlet_allocation(documents, i_num_topics, i_alpha, i_beta):
@@ -82,16 +84,43 @@ def plot_distributions(true_dist, recovered_dist):
 	plt.show()
 
 
+def find_mean_alpha_entropy(topic_doc):
+	mean_alpha_entropy = 0
+	for i in topic_doc:
+		term = 0
+		for j in i:
+			term = term + j*math.log(j)
+		mean_alpha_entropy = mean_alpha_entropy + term
+	mean_alpha_entropy = -mean_alpha_entropy/len(topic_doc)
+	return mean_alpha_entropy
+
+
+def get_alpha_distribution(alphas):
+	mean_list = OrderedDict()
+	for alp in alphas:
+		topic_draw = np.random.dirichlet([alp] * 3, size=200)
+		mean_list[alp] = find_mean_alpha_entropy(topic_draw)
+	plt.plot(list(mean_list.keys()), list(mean_list.values()))
+	plt.show()
+
+
 if __name__ == "__main__":
+	# Part 1
 	alpha = 0.1
 	beta = 0.01
 	num_topics = 3
-	docs = create_documents(alpha, beta)
+	docs, t_given_d = create_documents(alpha, beta)
+	print(docs[0])
+
+	# Part 2
 	lda_p = latent_dirichlet_allocation(docs, num_topics, alpha, beta)
 	ttd_p = get_word_topic_distribution(docs)
 	plot_distributions(ttd_p, lda_p)
-	print('done')
 
+	# Part 3
+	list_alpha = [0.1, 0.3, 0.5, 0.7, 0.9]
+	get_alpha_distribution(list_alpha)
+	print('hey')
 
 
 
