@@ -138,7 +138,7 @@ if __name__ == "__main__":
 
 	list_beta = [0.01, 0.03, 0.05, 0.07, 0.09]
 	get_beta_distribution(list_beta)
-	print('hey')
+	print('done')
 
 
 
