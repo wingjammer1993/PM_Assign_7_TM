@@ -1,5 +1,4 @@
 import numpy as np
-from math import *
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 
