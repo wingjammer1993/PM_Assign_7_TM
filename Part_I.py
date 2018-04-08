@@ -84,22 +84,22 @@ def plot_distributions(true_dist, recovered_dist):
 	plt.show()
 
 
-def find_mean_alpha_entropy(topic_doc):
-	mean_alpha_entropy = 0
+def find_mean_entropy(topic_doc):
+	mean_entropy = 0
 	for i in topic_doc:
 		term = 0
 		for j in i:
 			term = term + j*math.log(j)
-		mean_alpha_entropy = mean_alpha_entropy + term
-	mean_alpha_entropy = -mean_alpha_entropy/len(topic_doc)
-	return mean_alpha_entropy
+		mean_entropy = mean_entropy + term
+	mean_entropy = -mean_entropy/len(topic_doc)
+	return mean_entropy
 
 
 def get_alpha_distribution(alphas):
 	mean_list = OrderedDict()
 	for alp in alphas:
 		topic_draw = np.random.dirichlet([alp] * 3, size=200)
-		mean_list[alp] = find_mean_alpha_entropy(topic_draw)
+		mean_list[alp] = find_mean_entropy(topic_draw)
 	plt.plot(list(mean_list.keys()), list(mean_list.values()))
 	plt.show()
 
