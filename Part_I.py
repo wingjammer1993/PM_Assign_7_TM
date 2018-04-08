@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
+import matplotlib.pyplot as plt
 
 words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
 
@@ -46,7 +47,6 @@ def latent_dirichlet_allocation(documents, i_num_topics, i_alpha, i_beta):
 
 def get_word_topic_distribution(documents):
 	topic_document = [0]*3
-	topic_word = [0]*20
 	topic_0 = [0]*20
 	topic_1 = [0]*20
 	topic_2 = [0]*20
@@ -56,24 +56,30 @@ def get_word_topic_distribution(documents):
 			if j != " ":
 				if 0 <= words.index(j) < 7:
 					topic_document[0] = topic_document[0] + 1
-					topic_word[words.index(j)] = topic_word[words.index(j)] + 1
+					topic_0[words.index(j)] = topic_0[words.index(j)] + 1
 				elif 7 <= words.index(j) < 14:
 					topic_document[1] = topic_document[1] + 1
-					topic_word[words.index(j)] = topic_word[words.index(j)] + 1
+					topic_1[words.index(j)] = topic_1[words.index(j)] + 1
 				else:
 					topic_document[2] = topic_document[2] + 1
-					topic_word[words.index(j)] = topic_word[words.index(j)] + 1
-	for idx, i in enumerate(topic_word):
-		if 0 <= idx < 7:
-			topic_0[idx] = topic_word[idx]/topic_document[0]
-		elif 7 <= idx < 14:
-			topic_1[idx] = topic_word[idx]/topic_document[1]
-		else:
-			topic_2[idx] = topic_word[idx]/topic_document[2]
-	topics[0] = topic_0
-	topics[1] = topic_1
-	topics[2] = topic_2
-	return topic_word
+					topic_2[words.index(j)] = topic_2[words.index(j)] + 1
+	topics[0] = [x/topic_document[0] for x in topic_0]
+	topics[1] = [x/topic_document[1] for x in topic_1]
+	topics[2] = [x/topic_document[2] for x in topic_2]
+	return topics
+
+
+def plot_distributions(true_dist, recovered_dist):
+
+	for i in range(0, 3):
+		x = np.arange(20)
+		plt.xticks(x, words)
+		plt.xlabel('words')
+		plt.ylabel('P(W|T)')
+		plt.title('Word-Topic distribution for all the topics')
+		plt.plot(true_dist[i], color='red')
+		plt.plot(recovered_dist[i], color='green')
+	plt.show()
 
 
 
@@ -84,6 +90,10 @@ if __name__ == "__main__":
 	docs = create_documents(alpha, beta)
 	lda_p = latent_dirichlet_allocation(docs, num_topics, alpha, beta)
 	ttd_p = get_word_topic_distribution(docs)
+	plot_distributions(ttd_p, lda_p)
+	print('done')
+
+
 
 
 
