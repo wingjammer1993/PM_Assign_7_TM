@@ -82,7 +82,6 @@ def plot_distributions(true_dist, recovered_dist):
 	plt.show()
 
 
-
 if __name__ == "__main__":
 	alpha = 0.1
 	beta = 0.01
