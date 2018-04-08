@@ -89,7 +89,8 @@ def find_mean_entropy(topic_doc):
 	for i in topic_doc:
 		term = 0
 		for j in i:
-			term = term + j*math.log(j)
+			if j != 0:
+				term = term + j*math.log(j)
 		mean_entropy = mean_entropy + term
 	mean_entropy = -mean_entropy/len(topic_doc)
 	return mean_entropy
@@ -100,6 +101,20 @@ def get_alpha_distribution(alphas):
 	for alp in alphas:
 		topic_draw = np.random.dirichlet([alp] * 3, size=200)
 		mean_list[alp] = find_mean_entropy(topic_draw)
+	plt.plot(list(mean_list.keys()), list(mean_list.values()))
+	plt.show()
+
+
+def get_beta_distribution(betas):
+	mean_list = OrderedDict()
+	list_dummy = []
+	i_alpha = 0.1
+	for bet in betas:
+		docs_new, _ = create_documents(i_alpha, bet)
+		ttd = get_word_topic_distribution(docs_new)
+		for i in ttd:
+			list_dummy.append(ttd[i])
+		mean_list[bet] = find_mean_entropy(list_dummy)
 	plt.plot(list(mean_list.keys()), list(mean_list.values()))
 	plt.show()
 
@@ -120,6 +135,9 @@ if __name__ == "__main__":
 	# Part 3
 	list_alpha = [0.1, 0.3, 0.5, 0.7, 0.9]
 	get_alpha_distribution(list_alpha)
+
+	list_beta = [0.01, 0.03, 0.05, 0.07, 0.09]
+	get_beta_distribution(list_beta)
 	print('hey')
 
 
