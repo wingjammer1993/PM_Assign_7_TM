@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 
-words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T']
+words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
 
 
 def display_topics(model, feature_names, no_top_words):
@@ -34,13 +34,41 @@ def create_documents(i_alpha, i_beta):
 
 
 def latent_dirichlet_allocation(documents, i_num_topics, i_alpha, i_beta):
-	count_vec = CountVectorizer(stop_words=None, analyzer='char', lowercase = False)
+	count_vec = CountVectorizer(stop_words=None, analyzer='char', lowercase=False, max_df=0.99)
 	tf = count_vec.fit_transform(documents)
-	k = tf.todense()
 	tf_feature_names = count_vec.get_feature_names()
 	lda = LatentDirichletAllocation(n_components=i_num_topics, doc_topic_prior=i_alpha, topic_word_prior=i_beta).fit(tf)
 	no_top_words = 10
 	display_topics(lda, tf_feature_names, no_top_words)
+	lda_prob = lda.components_ / lda.components_.sum(axis=1)[:, np.newaxis]
+	return lda_prob
+
+
+def get_word_topic_distribution(documents):
+	topic_document = [0]*3
+	topic_word = [0]*20
+	for idx, i in enumerate(documents):
+		for j in i:
+			if j != " ":
+				if 0 <= words.index(j) < 7:
+					topic_document[0] = topic_document[0] + 1
+					topic_word[words.index(j)] = topic_word[words.index(j)] + 1
+				elif 7 <= words.index(j) < 14:
+					topic_document[1] = topic_document[1] + 1
+					topic_word[words.index(j)] = topic_word[words.index(j)] + 1
+				else:
+					topic_document[2] = topic_document[2] + 1
+					topic_word[words.index(j)] = topic_word[words.index(j)] + 1
+	for idx, i in enumerate(topic_word):
+		if 0 <= idx < 7:
+			topic_word[idx] = topic_word[idx]/topic_document[0]
+		elif 7 <= idx < 14:
+			topic_word[idx] = topic_word[idx]/topic_document[1]
+		else:
+			topic_word[idx] = topic_word[idx]/topic_document[2]
+
+	return topic_word
+
 
 
 if __name__ == "__main__":
@@ -48,6 +76,8 @@ if __name__ == "__main__":
 	beta = 0.01
 	num_topics = 3
 	docs = create_documents(alpha, beta)
-	latent_dirichlet_allocation(docs, num_topics, alpha, beta)
+	lda_p = latent_dirichlet_allocation(docs, num_topics, alpha, beta)
+	ttd_p = get_word_topic_distribution(docs)
+
 
 
