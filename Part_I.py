@@ -47,6 +47,10 @@ def latent_dirichlet_allocation(documents, i_num_topics, i_alpha, i_beta):
 def get_word_topic_distribution(documents):
 	topic_document = [0]*3
 	topic_word = [0]*20
+	topic_0 = [0]*20
+	topic_1 = [0]*20
+	topic_2 = [0]*20
+	topics = {}
 	for idx, i in enumerate(documents):
 		for j in i:
 			if j != " ":
@@ -61,12 +65,14 @@ def get_word_topic_distribution(documents):
 					topic_word[words.index(j)] = topic_word[words.index(j)] + 1
 	for idx, i in enumerate(topic_word):
 		if 0 <= idx < 7:
-			topic_word[idx] = topic_word[idx]/topic_document[0]
+			topic_0[idx] = topic_word[idx]/topic_document[0]
 		elif 7 <= idx < 14:
-			topic_word[idx] = topic_word[idx]/topic_document[1]
+			topic_1[idx] = topic_word[idx]/topic_document[1]
 		else:
-			topic_word[idx] = topic_word[idx]/topic_document[2]
-
+			topic_2[idx] = topic_word[idx]/topic_document[2]
+	topics[0] = topic_0
+	topics[1] = topic_1
+	topics[2] = topic_2
 	return topic_word
 
 
