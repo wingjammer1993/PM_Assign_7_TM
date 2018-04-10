@@ -98,9 +98,25 @@ def find_mean_entropy(topic_doc):
 
 def get_alpha_distribution(alphas):
 	mean_list = OrderedDict()
+	docs_new, topic_draw = create_documents(0.1, 0.01)
+	mean = find_mean_entropy(topic_draw)
+	i_beta = 0.01
 	for alp in alphas:
-		topic_draw = np.random.dirichlet([alp] * 3, size=200)
-		mean_list[alp] = find_mean_entropy(topic_draw)
+		topic_list = []
+		p_lda = latent_dirichlet_allocation(docs_new, 3, alp, i_beta)
+		for i in docs_new:
+			doc_topic = [0]*3
+			for j in i:
+				if j != " ":
+					k = words.index(j)
+					recovered_topic = np.argmax([p_lda[0][k], p_lda[1][k], p_lda[2][k]])
+					doc_topic[int(recovered_topic)] += 1
+			doc_topic = [x/50 for x in doc_topic]
+			topic_list.append(doc_topic)
+		mean_list[alp] = find_mean_entropy(topic_list)
+	plt.title("Mean entropy for generative model is {}".format(mean))
+	plt.xlabel("Alpha values")
+	plt.ylabel("Mean Entropy of recovered model")
 	plt.plot(list(mean_list.keys()), list(mean_list.values()))
 	plt.show()
 
