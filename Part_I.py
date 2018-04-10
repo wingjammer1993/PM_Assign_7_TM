@@ -115,7 +115,7 @@ def get_alpha_distribution(alphas):
 	docs_new, topic_draw = create_documents(0.1, 0.01)
 	mean = find_mean_entropy(topic_draw)
 	i_beta = 0.01
-	# Find mean entropy of recovered model by varying beta
+	# Find mean entropy of recovered model by varying alpha
 	for alp in alphas:
 		topic_list = []
 		p_lda = latent_dirichlet_allocation(docs_new, 3, alp, i_beta)
@@ -148,7 +148,7 @@ def get_beta_distribution(betas):
 	for i in ttd:
 		list_dummy.append(ttd[i])
 	mean = find_mean_entropy(list_dummy)
-	# Vary beta for the recovered model
+	# Find mean entropy of recovered model by varying beta
 	for bet in betas:
 		list_dummy = []
 		p_lda = latent_dirichlet_allocation(docs_new, 3, i_alpha, bet)
