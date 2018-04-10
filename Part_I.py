@@ -8,19 +8,19 @@ from collections import OrderedDict
 words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
 
 
-def display_topics(model, feature_names, no_top_words):
-    for topic_idx, topic in enumerate(model.components_):
-        print("Topic %d:" % topic_idx)
-        print(" ".join([feature_names[i]
-                        for i in topic.argsort()[:-no_top_words - 1:-1]]))
-
-
+# This function creates synthetic documents
 def create_documents(i_alpha, i_beta):
 	documents = []
+	# Draw the topics from Dirichlet with alphas as [0.1, 0.1, 0.1]
 	topic_draw = np.random.dirichlet([i_alpha]*3, size=200)
 	for i in topic_draw:
 		actual_doc = ''
+		# For each word in the document
 		for j in range(0, 50):
+			# Select a topic the particular word will belong to with multinomial using the topic_draws generated above
+			# Choose the word in the topic which gives the maximum probability from dirichlet
+			# It is assumed that topic 0 will have words with equal probability from A-G and 0 otherwise
+			# Similarly H to N for topic 1 and O to T for topic 2
 			topic_distribution = np.random.multinomial(1, i, size=1)
 			if topic_distribution[0][0] == 1:
 				topic_0 = np.argmax(np.random.dirichlet([i_beta]*7))
@@ -36,6 +36,15 @@ def create_documents(i_alpha, i_beta):
 	return documents, topic_draw
 
 
+# Function to display topics recovered by LDA model
+def display_topics(model, feature_names, no_top_words):
+	for topic_idx, topic in enumerate(model.components_):
+		print("Topic %d:" % topic_idx)
+		print(" ".join([feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]]))
+
+
+# In this function documents are count vectorized and passed to LDA
+# The scores given by LDA are normalized to obtain P(W|T)
 def latent_dirichlet_allocation(documents, i_num_topics, i_alpha, i_beta):
 	count_vec = CountVectorizer(stop_words=None, analyzer='char', lowercase=False, max_df=0.99)
 	tf = count_vec.fit_transform(documents)
@@ -47,6 +56,7 @@ def latent_dirichlet_allocation(documents, i_num_topics, i_alpha, i_beta):
 	return lda_prob
 
 
+# This function gives the P(W|T) of the generated documents
 def get_word_topic_distribution(documents):
 	topic_document = [0]*3
 	topic_0 = [0]*20
@@ -71,6 +81,7 @@ def get_word_topic_distribution(documents):
 	return topics
 
 
+# Plot the distribution of true and recovered topics
 def plot_distributions(true_dist, recovered_dist):
 
 	for i in range(0, 3):
@@ -84,6 +95,7 @@ def plot_distributions(true_dist, recovered_dist):
 	plt.show()
 
 
+# Find the mean entropy, accepts a list of list as input
 def find_mean_entropy(topic_doc):
 	mean_entropy = 0
 	for i in topic_doc:
@@ -96,11 +108,15 @@ def find_mean_entropy(topic_doc):
 	return mean_entropy
 
 
+# This function gives the variation of alpha vs. mean entropy for the recovered model, keeping beta constant
+# True model has alpha = 0.1 and beta = 0.01
 def get_alpha_distribution(alphas):
 	mean_list = OrderedDict()
+	# Find mean entropy of true model for reference
 	docs_new, topic_draw = create_documents(0.1, 0.01)
 	mean = find_mean_entropy(topic_draw)
 	i_beta = 0.01
+	# Find mean entropy of recovered model by varying beta
 	for alp in alphas:
 		topic_list = []
 		p_lda = latent_dirichlet_allocation(docs_new, 3, alp, i_beta)
@@ -121,15 +137,19 @@ def get_alpha_distribution(alphas):
 	plt.show()
 
 
+# This function gives the variation of beta vs. mean entropy for the recovered model, keeping alpha constant
+# True model has beta = 0.01 and alpha = 0.1
 def get_beta_distribution(betas):
 	mean_list = OrderedDict()
 	list_dummy = []
 	i_alpha = 0.1
+	# Find mean entropy of true model for reference
 	docs_new, _ = create_documents(i_alpha, 0.01)
 	ttd = get_word_topic_distribution(docs_new)
 	for i in ttd:
 		list_dummy.append(ttd[i])
 	mean = find_mean_entropy(list_dummy)
+	# Vary beta for the recovered model
 	for bet in betas:
 		list_dummy = []
 		p_lda = latent_dirichlet_allocation(docs_new, 3, i_alpha, bet)
