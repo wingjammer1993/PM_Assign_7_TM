@@ -109,12 +109,20 @@ def get_beta_distribution(betas):
 	mean_list = OrderedDict()
 	list_dummy = []
 	i_alpha = 0.1
+	docs_new, _ = create_documents(i_alpha, 0.01)
+	ttd = get_word_topic_distribution(docs_new)
+	for i in ttd:
+		list_dummy.append(ttd[i])
+	mean = find_mean_entropy(list_dummy)
 	for bet in betas:
-		docs_new, _ = create_documents(i_alpha, bet)
-		ttd = get_word_topic_distribution(docs_new)
-		for i in ttd:
-			list_dummy.append(ttd[i])
+		list_dummy = []
+		p_lda = latent_dirichlet_allocation(docs_new, 3, i_alpha, bet)
+		for i in p_lda:
+			list_dummy.append(i)
 		mean_list[bet] = find_mean_entropy(list_dummy)
+	plt.title("Mean entropy for generative model is {}".format(mean))
+	plt.xlabel("Beta values")
+	plt.ylabel("Mean Entropy of recovered model")
 	plt.plot(list(mean_list.keys()), list(mean_list.values()))
 	plt.show()
 
