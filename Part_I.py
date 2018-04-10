@@ -83,7 +83,6 @@ def get_word_topic_distribution(documents):
 
 # Plot the distribution of true and recovered topics
 def plot_distributions(true_dist, recovered_dist):
-
 	for i in range(0, 3):
 		x = np.arange(20)
 		plt.xticks(x, words)
