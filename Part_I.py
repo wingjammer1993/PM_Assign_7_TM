@@ -102,14 +102,17 @@ def get_alpha_distribution(alphas):
 	for alp in alphas:
 		topic_list = []
 		p_lda = latent_dirichlet_allocation(docs_new, 3, alp, i_beta)
+		wt_p = []
+		for p in range(0, 20):
+			word_topic_probability = [p_lda[0][p], p_lda[1][p], p_lda[2][p]]
+			word_topic_probability = [x / sum(word_topic_probability) for x in word_topic_probability]
+			wt_p.append(word_topic_probability)
 		for i in docs_new:
 			doc_topic = [0]*3
 			for j in i:
 				if j != " ":
 					k = words.index(j)
-					word_topic_probability = [p_lda[0][k], p_lda[1][k], p_lda[2][k]]
-					word_topic_probability = [x/sum(word_topic_probability) for x in word_topic_probability]
-					recovered_topic = np.argmax(np.random.multinomial(1, word_topic_probability, size=1))
+					recovered_topic = np.argmax(np.random.multinomial(1, wt_p[k], size=1))
 					doc_topic[int(recovered_topic)] += 1
 			doc_topic = [x/50 for x in doc_topic]
 			topic_list.append(doc_topic)
