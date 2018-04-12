@@ -107,7 +107,11 @@ def get_alpha_distribution(alphas):
 			for j in i:
 				if j != " ":
 					k = words.index(j)
-					recovered_topic = np.argmax([p_lda[0][k], p_lda[1][k], p_lda[2][k]])
+					word_topic_probability = [p_lda[0][k], p_lda[1][k], p_lda[2][k]]
+					s = sum(word_topic_probability)
+					if s != 1:
+						assert('sum not one for {}'.format(word_topic_probability))
+					recovered_topic = np.argmax(np.random.multinomial(1, word_topic_probability, size=1))
 					doc_topic[int(recovered_topic)] += 1
 			doc_topic = [x/50 for x in doc_topic]
 			topic_list.append(doc_topic)
