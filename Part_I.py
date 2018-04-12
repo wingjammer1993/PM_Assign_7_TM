@@ -156,10 +156,10 @@ if __name__ == "__main__":
 	plot_distributions(w_given_t, lda_p)
 
 	# Part 3
-	list_alpha = [0.1, 0.3, 0.5, 0.7, 0.9]
+	list_alpha = [1, 10, 20, 30, 40]
 	get_alpha_distribution(list_alpha)
 
-	list_beta = [0.01, 0.03, 0.05, 0.07, 0.09]
+	list_beta = [1, 20, 40, 60, 100]
 	get_beta_distribution(list_beta)
 	print('done')
 
