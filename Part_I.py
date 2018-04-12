@@ -23,7 +23,7 @@ def create_documents(i_alpha, i_beta):
 			actual_doc = actual_doc + chr(65 + word) + " "
 		documents.append(actual_doc)
 	print(documents)
-	return documents, word_topic_dist
+	return documents, word_topic_dist, topic_draw
 
 
 # Function to display topics recovered by LDA model
@@ -95,7 +95,7 @@ def find_mean_entropy(topic_doc):
 def get_alpha_distribution(alphas):
 	mean_list = OrderedDict()
 	# Find mean entropy of true model for reference
-	docs_new, topic_draw = create_documents(0.1, 0.01)
+	docs_new, w_t, topic_draw = create_documents(0.1, 0.01)
 	mean = find_mean_entropy(topic_draw)
 	i_beta = 0.01
 	# Find mean entropy of recovered model by varying alpha
@@ -125,7 +125,7 @@ def get_beta_distribution(betas):
 	mean_list = OrderedDict()
 	i_alpha = 0.1
 	# Find mean entropy of true model for reference
-	docs_new, ttd = create_documents(i_alpha, 0.01)
+	docs_new, ttd, _ = create_documents(i_alpha, 0.01)
 	mean = find_mean_entropy(ttd)
 	# Find mean entropy of recovered model by varying beta
 	for bet in betas:
@@ -143,7 +143,7 @@ if __name__ == "__main__":
 	alpha = 0.1
 	beta = 0.01
 	num_topics = 3
-	docs, w_given_t = create_documents(alpha, beta)
+	docs, w_given_t, _ = create_documents(alpha, beta)
 	print(docs[0])
 
 	# Part 2
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
 	# Part 3
 	list_alpha = [0.1, 0.3, 0.5, 0.7, 0.9]
-	#get_alpha_distribution(list_alpha)
+	get_alpha_distribution(list_alpha)
 
 	list_beta = [0.01, 0.03, 0.05, 0.07, 0.09]
 	get_beta_distribution(list_beta)
