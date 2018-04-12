@@ -49,11 +49,12 @@ def latent_dirichlet_allocation(documents, i_num_topics, i_alpha, i_beta):
 	tf = count_vec.fit_transform(documents)
 	tf_feature_names = count_vec.get_feature_names()
 	lda = LatentDirichletAllocation(n_components=i_num_topics, doc_topic_prior=i_alpha, topic_word_prior=i_beta).fit(tf)
+	t_given_d = lda.transform(X=tf)
 	no_top_words = 10
 	display_topics(lda, tf_feature_names, no_top_words)
 	lda_prob = lda.components_ / lda.components_.sum(axis=1)[:, np.newaxis]
 	lda_prob = format_lda_p(lda_prob, tf_feature_names)
-	return lda_prob
+	return lda_prob, t_given_d
 
 
 # Plot the distribution of true and recovered topics
@@ -100,22 +101,7 @@ def get_alpha_distribution(alphas):
 	i_beta = 0.01
 	# Find mean entropy of recovered model by varying alpha
 	for alp in alphas:
-		topic_list = []
-		p_lda = latent_dirichlet_allocation(docs_new, 3, alp, i_beta)
-		wt_p = []
-		for p in range(0, 20):
-			word_topic_probability = [p_lda[0][p], p_lda[1][p], p_lda[2][p]]
-			word_topic_probability = [x / sum(word_topic_probability) for x in word_topic_probability]
-			wt_p.append(word_topic_probability)
-		for i in docs_new:
-			doc_topic = [0]*3
-			for j in i:
-				if j != " ":
-					k = words.index(j)
-					recovered_topic = np.argmax(np.random.multinomial(1, wt_p[k], size=1))
-					doc_topic[int(recovered_topic)] += 1
-			doc_topic = [x/50 for x in doc_topic]
-			topic_list.append(doc_topic)
+		p_lda, topic_list = latent_dirichlet_allocation(docs_new, 3, alp, i_beta)
 		mean_list[alp] = find_mean_entropy(topic_list)
 	plt.title("Mean entropy for generative model is {}".format(mean))
 	plt.xlabel("Alpha values")
@@ -134,7 +120,7 @@ def get_beta_distribution(betas):
 	mean = find_mean_entropy(ttd)
 	# Find mean entropy of recovered model by varying beta
 	for bet in betas:
-		p_lda = latent_dirichlet_allocation(docs_new, 3, i_alpha, bet)
+		p_lda, _ = latent_dirichlet_allocation(docs_new, 3, i_alpha, bet)
 		mean_list[bet] = find_mean_entropy(p_lda)
 	plt.title("Mean entropy for generative model is {}".format(mean))
 	plt.xlabel("Beta values")
@@ -152,7 +138,7 @@ if __name__ == "__main__":
 	print(docs[0])
 
 	# Part 2
-	lda_p = latent_dirichlet_allocation(docs, num_topics, alpha, beta)
+	lda_p, _ = latent_dirichlet_allocation(docs, num_topics, alpha, beta)
 	plot_distributions(w_given_t, lda_p)
 
 	# Part 3
