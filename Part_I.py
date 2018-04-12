@@ -58,14 +58,22 @@ def latent_dirichlet_allocation(documents, i_num_topics, i_alpha, i_beta):
 
 # Plot the distribution of true and recovered topics
 def plot_distributions(true_dist, recovered_dist):
+	counter = 1
+	x = np.arange(20)
 	for i in range(0, 3):
-		x = np.arange(20)
+		plt.subplot(2, 3, counter)
 		plt.xticks(x, words)
 		plt.xlabel('words')
 		plt.ylabel('P(W|T)')
-		plt.title('Word-Topic distribution for all the topics')
 		plt.plot(true_dist[i], color='red')
+		counter += 3
+		plt.subplot(2, 3, counter)
+		plt.xticks(x, words)
+		plt.xlabel('words')
+		plt.ylabel('P(W|T)')
+		counter -= 2
 		plt.plot(recovered_dist[i], color='green')
+	plt.suptitle('Word-Topic distribution for all the topics')
 	plt.show()
 
 
