@@ -22,3 +22,4 @@ no_topics = 20
 lda = LatentDirichletAllocation(n_topics=no_topics, max_iter=5, learning_method='online', learning_offset=50.,random_state=0).fit(tf)
 no_top_words = 10
 display_topics(lda, tf_feature_names, no_top_words)
+
