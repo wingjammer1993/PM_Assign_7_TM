@@ -123,21 +123,14 @@ def get_alpha_distribution(alphas):
 # True model has beta = 0.01 and alpha = 0.1
 def get_beta_distribution(betas):
 	mean_list = OrderedDict()
-	list_dummy = []
 	i_alpha = 0.1
 	# Find mean entropy of true model for reference
-	docs_new, _ = create_documents(i_alpha, 0.01)
-	ttd = get_word_topic_distribution(docs_new)
-	for i in ttd:
-		list_dummy.append(ttd[i])
-	mean = find_mean_entropy(list_dummy)
+	docs_new, ttd = create_documents(i_alpha, 0.01)
+	mean = find_mean_entropy(ttd)
 	# Find mean entropy of recovered model by varying beta
 	for bet in betas:
-		list_dummy = []
 		p_lda = latent_dirichlet_allocation(docs_new, 3, i_alpha, bet)
-		for i in p_lda:
-			list_dummy.append(i)
-		mean_list[bet] = find_mean_entropy(list_dummy)
+		mean_list[bet] = find_mean_entropy(p_lda)
 	plt.title("Mean entropy for generative model is {}".format(mean))
 	plt.xlabel("Beta values")
 	plt.ylabel("Mean Entropy of recovered model")
@@ -162,7 +155,7 @@ if __name__ == "__main__":
 	#get_alpha_distribution(list_alpha)
 
 	list_beta = [0.01, 0.03, 0.05, 0.07, 0.09]
-	#get_beta_distribution(list_beta)
+	get_beta_distribution(list_beta)
 	print('done')
 
 
