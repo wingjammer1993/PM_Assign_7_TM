@@ -11,29 +11,19 @@ words = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', '
 # This function creates synthetic documents
 def create_documents(i_alpha, i_beta):
 	documents = []
-	# Draw the topics from Dirichlet with alphas as [0.1, 0.1, 0.1]
+	word_topic_dist = np.random.dirichlet(alpha=[i_beta]*20, size=3)
 	topic_draw = np.random.dirichlet([i_alpha]*3, size=200)
 	for i in topic_draw:
 		actual_doc = ''
-		# For each word in the document
 		for j in range(0, 50):
-			# Select a topic the particular word will belong to with multinomial using the topic_draws generated above
-			# Choose the word in the topic which gives the maximum probability from dirichlet
-			# It is assumed that topic 0 will have words with equal probability from A-G and 0 otherwise
-			# Similarly H to N for topic 1 and O to T for topic 2
 			topic_distribution = np.random.multinomial(1, i, size=1)
-			if topic_distribution[0][0] == 1:
-				topic_0 = np.argmax(np.random.dirichlet([i_beta]*7))
-				actual_doc = actual_doc + (chr(65 + int(topic_0))) + " "  # A to G
-			if topic_distribution[0][1] == 1:
-				topic_1 = np.argmax(np.random.dirichlet([i_beta]*7))
-				actual_doc = actual_doc + (chr(72 + int(topic_1))) + " "  # H to N
-			if topic_distribution[0][2] == 1:
-				topic_2 = np.argmax(np.random.dirichlet([i_beta]*6))
-				actual_doc = actual_doc + (chr(79 + int(topic_2))) + " "  # O to T
+			topic = np.argmax(topic_distribution)
+			word_picked = np.random.multinomial(1, word_topic_dist[topic], size=1)
+			word = int(np.argmax(word_picked))
+			actual_doc = actual_doc + chr(65 + word) + " "
 		documents.append(actual_doc)
 	print(documents)
-	return documents, topic_draw
+	return documents, word_topic_dist
 
 
 # Function to display topics recovered by LDA model
@@ -41,6 +31,15 @@ def display_topics(model, feature_names, no_top_words):
 	for topic_idx, topic in enumerate(model.components_):
 		print("Topic %d:" % topic_idx)
 		print(" ".join([feature_names[i] for i in topic.argsort()[:-no_top_words - 1:-1]]))
+
+
+def format_lda_p(lda_matrix, feature_names):
+	lda_pr = np.zeros((3, 20))
+	for i, topic in enumerate(lda_matrix):
+		for j, word in enumerate(feature_names):
+			true_idx = words.index(word)
+			lda_pr[i][true_idx] = topic[j]
+	return lda_pr
 
 
 # In this function documents are count vectorized and passed to LDA
@@ -53,32 +52,8 @@ def latent_dirichlet_allocation(documents, i_num_topics, i_alpha, i_beta):
 	no_top_words = 10
 	display_topics(lda, tf_feature_names, no_top_words)
 	lda_prob = lda.components_ / lda.components_.sum(axis=1)[:, np.newaxis]
+	lda_prob = format_lda_p(lda_prob, tf_feature_names)
 	return lda_prob
-
-
-# This function gives the P(W|T) of the generated documents
-def get_word_topic_distribution(documents):
-	topic_document = [0]*3
-	topic_0 = [0]*20
-	topic_1 = [0]*20
-	topic_2 = [0]*20
-	topics = {}
-	for idx, i in enumerate(documents):
-		for j in i:
-			if j != " ":
-				if 0 <= words.index(j) < 7:
-					topic_document[0] = topic_document[0] + 1
-					topic_0[words.index(j)] = topic_0[words.index(j)] + 1
-				elif 7 <= words.index(j) < 14:
-					topic_document[1] = topic_document[1] + 1
-					topic_1[words.index(j)] = topic_1[words.index(j)] + 1
-				else:
-					topic_document[2] = topic_document[2] + 1
-					topic_2[words.index(j)] = topic_2[words.index(j)] + 1
-	topics[0] = [x/topic_document[0] for x in topic_0]
-	topics[1] = [x/topic_document[1] for x in topic_1]
-	topics[2] = [x/topic_document[2] for x in topic_2]
-	return topics
 
 
 # Plot the distribution of true and recovered topics
@@ -167,20 +142,19 @@ if __name__ == "__main__":
 	alpha = 0.1
 	beta = 0.01
 	num_topics = 3
-	docs, t_given_d = create_documents(alpha, beta)
+	docs, w_given_t = create_documents(alpha, beta)
 	print(docs[0])
 
 	# Part 2
 	lda_p = latent_dirichlet_allocation(docs, num_topics, alpha, beta)
-	ttd_p = get_word_topic_distribution(docs)
-	plot_distributions(ttd_p, lda_p)
+	plot_distributions(w_given_t, lda_p)
 
 	# Part 3
 	list_alpha = [0.1, 0.3, 0.5, 0.7, 0.9]
-	get_alpha_distribution(list_alpha)
+	#get_alpha_distribution(list_alpha)
 
 	list_beta = [0.01, 0.03, 0.05, 0.07, 0.09]
-	get_beta_distribution(list_beta)
+	#get_beta_distribution(list_beta)
 	print('done')
 
 
